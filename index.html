@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BookMy Astrologer — Partner Desk</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], serif: ['"Cinzel"', 'serif'] }, colors: { indigoVedic: { 950: '#131138', 900: '#1E1B4B' }, saffron: { 400: '#FBBF24', 500: '#F59E0B', 600: '#D97706' }, ivory: { 50: '#FFFBEB' } } } }
+    }
+  </script>
+</head>
+<body class="bg-ivory-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- AUTH GATEWAY -->
+  <div id="auth-gateway" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative overflow-hidden">
+      <div class="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-saffron-400 to-saffron-600"></div>
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 mx-auto bg-indigoVedic-950 rounded-2xl flex items-center justify-center text-saffron-400 text-3xl shadow-lg mb-4"><i class="fa-solid fa-om"></i></div>
+        <h1 class="font-serif text-2xl font-bold text-indigoVedic-950">Acharya Partner Desk</h1>
+        <p class="text-xs text-slate-500 mt-1">Secure Login &bull; Manage your practice</p>
+      </div>
+      <div class="space-y-4">
+        <div><label class="block text-xs font-bold text-slate-700 mb-1">Astrologer Email</label><input type="text" id="partner-email" value="astro@example.com" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-saffron-500 outline-none" /></div>
+        <div><label class="block text-xs font-bold text-slate-700 mb-1">Password</label><input type="password" id="partner-pass" value="password123" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-saffron-500 outline-none" /></div>
+        <button onclick="handleLogin()" class="w-full py-3 rounded-xl bg-saffron-500 hover:bg-saffron-400 text-indigoVedic-950 font-bold text-sm transition">Login to Partner Desk</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN PARTNER APP -->
+  <div id="main-app" class="hidden flex-col min-h-screen">
+    <header class="bg-gradient-to-r from-indigoVedic-950 via-indigoVedic-900 to-amber-950 text-white border-b border-saffron-500/40 shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-saffron-500 text-indigoVedic-950 flex items-center justify-center font-bold"><i class="fa-solid fa-om text-xl"></i></div>
+          <div><span class="font-serif text-xl font-bold text-ivory-50 block">BookMy Astrologer <span class="text-saffron-400">Partner</span></span></div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span id="partner-status-badge" class="px-3 py-1.5 rounded-xl bg-amber-900/50 text-amber-300 text-xs font-bold border border-amber-600">Status: Pending Application</span>
+            <button onclick="handleLogout()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-rose-400 text-xs font-bold"><i class="fa-solid fa-power-off mr-1"></i>Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+      
+      <!-- APPLICATION FORM (Shown if not applied) -->
+      <div id="partner-application-form" class="bg-white rounded-2xl border border-amber-200 shadow-sm p-8 max-w-2xl mx-auto hidden">
+        <div class="text-center mb-6">
+          <h2 class="font-serif text-3xl font-bold text-indigoVedic-950">Apply to Join as an Acharya</h2>
+          <p class="text-sm text-slate-500">Submit your details for Admin verification. Once approved, you can upload your profile picture and start consulting.</p>
+        </div>
+        <form onsubmit="submitAstrologerApplication(event)" class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="block text-xs font-bold text-slate-700 mb-1">Full Name</label><input type="text" id="app-name" required class="w-full p-3 rounded-xl border border-slate-300" placeholder="Pandit Rajesh Kumar" /></div>
+            <div><label class="block text-xs font-bold text-slate-700 mb-1">Specialization</label><select id="app-spec" class="w-full p-3 rounded-xl border border-slate-300"><option>Vedic</option><option>Numerology</option><option>Vastu</option></select></div>
+            <div><label class="block text-xs font-bold text-slate-700 mb-1">Experience (Years)</label><input type="number" id="app-exp" required class="w-full p-3 rounded-xl border border-slate-300" placeholder="10" /></div>
+            <div><label class="block text-xs font-bold text-slate-700 mb-1">City</label><input type="text" id="app-city" required class="w-full p-3 rounded-xl border border-slate-300" placeholder="Jaipur" /></div>
+            <div class="col-span-2"><label class="block text-xs font-bold text-slate-700 mb-1">Aadhaar / PAN (For Verification)</label><input type="text" id="app-kyc" required class="w-full p-3 rounded-xl border border-slate-300" placeholder="XXXX-XXXX-1234" /></div>
+          </div>
+          <button type="submit" class="w-full py-3 rounded-xl bg-indigoVedic-900 text-saffron-300 font-bold text-sm mt-4">Submit Application for Admin Review</button>
+        </form>
+      </div>
+
+      <!-- PENDING SCREEN -->
+      <div id="partner-pending-screen" class="bg-amber-50 rounded-2xl border border-amber-300 p-10 text-center max-w-lg mx-auto hidden">
+        <i class="fa-solid fa-hourglass-half text-5xl text-saffron-600 mb-4 animate-pulse"></i>
+        <h2 class="font-serif text-2xl font-bold text-indigoVedic-950">Application Under Review</h2>
+        <p class="text-sm text-slate-600 mt-2">Your KYC documents are with the Admin team. You will be able to access the Partner Dashboard once approved.</p>
+        <p class="text-xs text-slate-400 mt-4">*Simulation: To test approval, go to the Admin App and click "Approve".</p>
+      </div>
+
+      <!-- APPROVED DASHBOARD -->
+      <div id="partner-dashboard" class="hidden">
+        <div class="bg-indigoVedic-950 text-white rounded-2xl p-6 sm:p-8 shadow-xl border border-saffron-500/30 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="flex items-center gap-4">
+            <!-- Profile pic upload is enabled ONLY after approval -->
+            <div class="relative group cursor-pointer" onclick="showToast('Profile picture upload activated!')">
+              <img id="partner-profile-pic" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80" class="w-20 h-20 rounded-2xl object-cover border-2 border-saffron-400" />
+              <div class="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-xl"></i></div>
+            </div>
+            <div>
+              <div class="flex items-center gap-2"><span class="px-2.5 py-0.5 rounded-full bg-saffron-500/20 text-saffron-300 text-[11px] font-bold">Verified Jyotish</span></div>
+              <h1 id="partner-dash-name" class="font-serif text-2xl font-bold mt-1">Acharya Name</h1>
+              <p id="partner-dash-spec" class="text-xs text-indigo-200">Vedic Astrology</p>
+            </div>
+          </div>
+          <div class="bg-indigoVedic-900 p-4 rounded-xl border border-indigo-700/70">
+            <span class="text-[11px] uppercase tracking-wider text-indigo-300 block">Status</span>
+            <span class="text-sm font-bold text-emerald-400 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Online &amp; Receiving Bookings</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-2xl p-6 border border-amber-200 shadow-sm"><h3 class="font-bold text-slate-500 text-sm mb-1">Today's Earnings</h3><p class="text-2xl font-bold text-slate-900">₹0.00</p></div>
+            <div class="bg-white rounded-2xl p-6 border border-amber-200 shadow-sm"><h3 class="font-bold text-slate-500 text-sm mb-1">Pending Payout</h3><p class="text-2xl font-bold text-slate-900">₹0.00</p></div>
+            <div class="bg-white rounded-2xl p-6 border border-amber-200 shadow-sm"><h3 class="font-bold text-slate-500 text-sm mb-1">Total Consultations</h3><p class="text-2xl font-bold text-slate-900">0</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simulated Database for Partner Repo
+    let myApplication = JSON.parse(localStorage.getItem('bma_partner_app')) || null;
+
+    function handleLogin() {
+      document.getElementById('auth-gateway').classList.add('hidden');
+      document.getElementById('main-app').classList.remove('hidden');
+      document.getElementById('main-app').classList.add('flex');
+      renderPartnerPortal();
+    }
+
+    function handleLogout() {
+      document.getElementById('auth-gateway').classList.remove('hidden');
+      document.getElementById('main-app').classList.add('hidden');
+      document.getElementById('main-app').classList.remove('flex');
+    }
+
+    function submitAstrologerApplication(e) {
+      e.preventDefault();
+      myApplication = {
+        id: 'APP-' + Math.floor(100 + Math.random() * 900),
+        name: document.getElementById('app-name').value,
+        specialization: document.getElementById('app-spec').value,
+        experience: document.getElementById('app-exp').value,
+        city: document.getElementById('app-city').value,
+        kycDoc: document.getElementById('app-kyc').value,
+        status: 'pending'
+      };
+      
+      localStorage.setItem('bma_partner_app', JSON.stringify(myApplication));
+      // Also save to the global Admin queue
+      let adminQueue = JSON.parse(localStorage.getItem('bma_admin_queue')) || [];
+      adminQueue.push(myApplication);
+      localStorage.setItem('bma_admin_queue', JSON.stringify(adminQueue));
+      
+      renderPartnerPortal();
+      showToast('Application submitted! Awaiting Admin approval.');
+    }
+
+    function renderPartnerPortal() {
+      // Re-fetch in case Admin approved it (you'd need to refresh the page to see it update in this local demo)
+      myApplication = JSON.parse(localStorage.getItem('bma_partner_app')) || null;
+
+      const formDiv = document.getElementById('partner-application-form');
+      const pendingDiv = document.getElementById('partner-pending-screen');
+      const dashDiv = document.getElementById('partner-dashboard');
+      const badge = document.getElementById('partner-status-badge');
+      
+      formDiv.classList.add('hidden');
+      pendingDiv.classList.add('hidden');
+      dashDiv.classList.add('hidden');
+
+      if (!myApplication) {
+        formDiv.classList.remove('hidden');
+        badge.textContent = 'Status: Not Applied';
+        badge.className = 'px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold border border-slate-600';
+      } else if (myApplication.status === 'pending') {
+        pendingDiv.classList.remove('hidden');
+        badge.textContent = 'Status: Pending Admin Review';
+        badge.className = 'px-3 py-1.5 rounded-xl bg-amber-900/50 text-amber-300 text-xs font-bold border border-amber-600';
+      } else if (myApplication.status === 'approved') {
+        dashDiv.classList.remove('hidden');
+        badge.textContent = 'Status: Verified & Approved';
+        badge.className = 'px-3 py-1.5 rounded-xl bg-emerald-900/50 text-emerald-300 text-xs font-bold border border-emerald-600';
+        document.getElementById('partner-dash-name').textContent = myApplication.name;
+        document.getElementById('partner-dash-spec').textContent = `${myApplication.specialization} • ${myApplication.city}`;
+      }
+    }
+
+    function showToast(msg, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const el = document.createElement('div');
+      const styles = type === 'success' ? 'bg-slate-900 border-saffron-400 text-white' : 'bg-rose-900 border-rose-400 text-white';
+      el.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-2xl text-xs sm:text-sm font-medium transition-all ${styles}`;
+      el.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check text-saffron-400' : 'fa-triangle-exclamation text-rose-300'}"></i><span>${msg}</span>`;
+      container.appendChild(el);
+      setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3400);
+    }
+  </script>
+</body>
+</html>
